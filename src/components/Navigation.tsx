@@ -1,4 +1,6 @@
-import { Trophy, Target, Zap, Users, User, BookOpen, Bell } from 'lucide-react';
+import { Trophy, Target, Zap, Users, User, BookOpen, Bell, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useApp } from '../context/AppContext';
 
 interface NavigationProps {
   currentPage: string;
@@ -7,6 +9,9 @@ interface NavigationProps {
 }
 
 export default function Navigation({ currentPage, onNavigate, onNotificationsClick }: NavigationProps) {
+  const navigate = useNavigate();
+  const { currentUser, logout } = useApp();
+
   const navItems = [
     { id: 'dashboard', icon: Target, label: 'Dashboard' },
     { id: 'missions', icon: BookOpen, label: 'Misiones' },
@@ -16,6 +21,11 @@ export default function Navigation({ currentPage, onNavigate, onNotificationsCli
     { id: 'profile', icon: User, label: 'Perfil' },
     { id: 'rules', icon: BookOpen, label: 'Reglas' },
   ];
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-sm border-b border-blue-500/20">
@@ -49,13 +59,30 @@ export default function Navigation({ currentPage, onNavigate, onNotificationsCli
             })}
           </div>
 
-          <button
-            onClick={onNotificationsClick}
-            className="relative p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors"
-          >
-            <Bell className="w-5 h-5 text-gray-300" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
+          <div className="flex items-center space-x-2">
+            {currentUser && (
+              <div className="hidden md:flex items-center space-x-2 px-3 py-2 rounded-lg bg-slate-800/50">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                  {currentUser.avatar}
+                </div>
+                <span className="text-sm text-gray-300">{currentUser.name}</span>
+              </div>
+            )}
+            <button
+              onClick={onNotificationsClick}
+              className="relative p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors"
+            >
+              <Bell className="w-5 h-5 text-gray-300" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <button
+              onClick={handleLogout}
+              className="p-2 rounded-lg bg-slate-800 hover:bg-red-600/20 hover:border-red-500/50 border border-transparent transition-colors"
+              title="Cerrar sesión"
+            >
+              <LogOut className="w-5 h-5 text-gray-300 hover:text-red-400" />
+            </button>
+          </div>
         </div>
       </div>
     </nav>

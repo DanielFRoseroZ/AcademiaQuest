@@ -1,62 +1,34 @@
 import { X, Trophy, Zap, Users, Star, CheckCircle2 } from 'lucide-react';
+import { useApp } from '../context/AppContext';
 
 interface NotificationsProps {
   onClose: () => void;
 }
 
 export default function Notifications({ onClose }: NotificationsProps) {
-  const notifications = [
-    {
-      id: 1,
-      type: 'achievement',
-      icon: Trophy,
-      title: 'Nueva Insignia Desbloqueada',
-      message: 'Has ganado la insignia "Racha de 7 días"',
-      time: 'Hace 5 minutos',
-      color: 'yellow',
-      unread: true,
-    },
-    {
-      id: 2,
-      type: 'xp',
-      icon: Zap,
-      title: '+150 XP Ganados',
-      message: 'Completaste "Álgebra Lineal: Matrices"',
-      time: 'Hace 1 hora',
-      color: 'blue',
-      unread: true,
-    },
-    {
-      id: 3,
-      type: 'team',
-      icon: Users,
-      title: 'Proyecto de Equipo',
-      message: 'Tu equipo completó el 50% de "Física Aplicada"',
-      time: 'Hace 2 horas',
-      color: 'cyan',
-      unread: true,
-    },
-    {
-      id: 4,
-      type: 'level',
-      icon: Star,
-      title: 'Nivel Subido',
-      message: 'Alcanzaste el Nivel 12',
-      time: 'Hace 5 horas',
-      color: 'purple',
-      unread: false,
-    },
-    {
-      id: 5,
-      type: 'mission',
-      icon: CheckCircle2,
-      title: 'Misión Disponible',
-      message: 'Nueva tarea de Historia Mundial disponible',
-      time: 'Hace 1 día',
-      color: 'green',
-      unread: false,
-    },
-  ];
+  const { currentUser, state, dispatch } = useApp();
+
+  if (!currentUser) {
+    return null;
+  }
+
+  const notifications = state.notifications
+    .filter(n => n.userId === currentUser.id)
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const handleMarkAsRead = (id: string) => {
+    dispatch({ type: 'MARK_NOTIFICATION_READ', payload: id });
+  };
+
+  const handleMarkAllAsRead = () => {
+    notifications.forEach(n => {
+      if (!n.read) {
+        dispatch({ type: 'MARK_NOTIFICATION_READ', payload: n.id });
+      }
+    });
+  };
 
   const colorMap = {
     yellow: 'from-yellow-500/20 to-amber-500/20 border-yellow-500/30',
@@ -74,12 +46,70 @@ export default function Notifications({ onClose }: NotificationsProps) {
     green: 'text-green-400',
   };
 
+  const getNotificationColor = (type: string) => {
+    switch (type) {
+      case 'achievement':
+        return 'yellow';
+      case 'xp':
+        return 'blue';
+      case 'team':
+        return 'cyan';
+      case 'level':
+        return 'purple';
+      case 'mission':
+      case 'challenge':
+        return 'green';
+      default:
+        return 'blue';
+    }
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'achievement':
+        return Trophy;
+      case 'xp':
+        return Zap;
+      case 'team':
+        return Users;
+      case 'level':
+        return Star;
+      case 'mission':
+      case 'challenge':
+        return CheckCircle2;
+      default:
+        return Star;
+    }
+  };
+
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (minutes < 1) return 'Hace un momento';
+    if (minutes < 60) return `Hace ${minutes} minuto${minutes > 1 ? 's' : ''}`;
+    if (hours < 24) return `Hace ${hours} hora${hours > 1 ? 's' : ''}`;
+    if (days < 7) return `Hace ${days} día${days > 1 ? 's' : ''}`;
+    return date.toLocaleDateString('es-ES');
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end pt-20 pr-4">
       <div className="w-full max-w-md">
         <div className="bg-slate-900/98 backdrop-blur-xl rounded-2xl shadow-2xl border border-blue-500/30 overflow-hidden">
           <div className="flex items-center justify-between p-4 border-b border-slate-700">
-            <h2 className="text-xl font-bold text-white">Notificaciones</h2>
+            <div className="flex items-center space-x-2">
+              <h2 className="text-xl font-bold text-white">Notificaciones</h2>
+              {unreadCount > 0 && (
+                <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded-full font-semibold">
+                  {unreadCount}
+                </span>
+              )}
+            </div>
             <button
               onClick={onClose}
               className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
@@ -89,54 +119,68 @@ export default function Notifications({ onClose }: NotificationsProps) {
           </div>
 
           <div className="max-h-[600px] overflow-y-auto">
-            <div className="p-4 space-y-3">
-              {notifications.map((notification) => {
-                const Icon = notification.icon;
-                return (
-                  <div
-                    key={notification.id}
-                    className={`relative bg-gradient-to-br ${
-                      colorMap[notification.color as keyof typeof colorMap]
-                    } border rounded-xl p-4 transition-all hover:shadow-lg cursor-pointer ${
-                      notification.unread ? 'border-opacity-100' : 'border-opacity-30'
-                    }`}
-                  >
-                    {notification.unread && (
-                      <div className="absolute top-3 right-3 w-2 h-2 bg-blue-500 rounded-full"></div>
-                    )}
-                    <div className="flex items-start space-x-3">
-                      <div
-                        className={`p-2 rounded-lg ${
-                          colorMap[notification.color as keyof typeof colorMap]
-                        }`}
-                      >
-                        <Icon
-                          className={`w-5 h-5 ${
-                            iconColorMap[notification.color as keyof typeof iconColorMap]
+            {notifications.length > 0 ? (
+              <div className="p-4 space-y-3">
+                {notifications.map((notification) => {
+                  const color = getNotificationColor(notification.type);
+                  const Icon = getNotificationIcon(notification.type);
+
+                  return (
+                    <div
+                      key={notification.id}
+                      onClick={() => handleMarkAsRead(notification.id)}
+                      className={`relative bg-gradient-to-br ${
+                        colorMap[color as keyof typeof colorMap]
+                      } border rounded-xl p-4 transition-all hover:shadow-lg cursor-pointer ${
+                        !notification.read ? 'border-opacity-100' : 'border-opacity-30'
+                      }`}
+                    >
+                      {!notification.read && (
+                        <div className="absolute top-3 right-3 w-2 h-2 bg-blue-500 rounded-full"></div>
+                      )}
+                      <div className="flex items-start space-x-3">
+                        <div
+                          className={`p-2 rounded-lg ${
+                            colorMap[color as keyof typeof colorMap]
                           }`}
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-white font-semibold mb-1">
-                          {notification.title}
-                        </h3>
-                        <p className="text-gray-300 text-sm mb-2">
-                          {notification.message}
-                        </p>
-                        <p className="text-gray-500 text-xs">{notification.time}</p>
+                        >
+                          <Icon
+                            className={`w-5 h-5 ${
+                              iconColorMap[color as keyof typeof iconColorMap]
+                            }`}
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-white font-semibold mb-1">
+                            {notification.title}
+                          </h3>
+                          <p className="text-gray-300 text-sm mb-2">
+                            {notification.message}
+                          </p>
+                          <p className="text-gray-500 text-xs">{formatTime(notification.timestamp)}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="p-8 text-center">
+                <p className="text-gray-400">No tienes notificaciones</p>
+              </div>
+            )}
           </div>
 
-          <div className="p-4 border-t border-slate-700">
-            <button className="w-full py-2 text-center text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">
-              Marcar todas como leídas
-            </button>
-          </div>
+          {notifications.length > 0 && unreadCount > 0 && (
+            <div className="p-4 border-t border-slate-700">
+              <button
+                onClick={handleMarkAllAsRead}
+                className="w-full py-2 text-center text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
+              >
+                Marcar todas como leídas
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AppProvider, useApp } from './context/AppContext';
+import Layout from './components/Layout';
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Missions from './pages/Missions';
 import Challenges from './pages/Challenges';
@@ -6,48 +9,49 @@ import Ranking from './pages/Ranking';
 import Teams from './pages/Teams';
 import Profile from './pages/Profile';
 import Rules from './pages/Rules';
-import Notifications from './pages/Notifications';
-import Navigation from './components/Navigation';
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { currentUser } = useApp();
+  
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return <>{children}</>;
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="missions" element={<Missions />} />
+        <Route path="challenges" element={<Challenges />} />
+        <Route path="ranking" element={<Ranking />} />
+        <Route path="teams" element={<Teams />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="rules" element={<Rules />} />
+      </Route>
+    </Routes>
+  );
+}
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('dashboard');
-  const [showNotifications, setShowNotifications] = useState(false);
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'missions':
-        return <Missions />;
-      case 'challenges':
-        return <Challenges />;
-      case 'ranking':
-        return <Ranking />;
-      case 'teams':
-        return <Teams />;
-      case 'profile':
-        return <Profile />;
-      case 'rules':
-        return <Rules />;
-      default:
-        return <Dashboard />;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-      <Navigation
-        currentPage={currentPage}
-        onNavigate={setCurrentPage}
-        onNotificationsClick={() => setShowNotifications(!showNotifications)}
-      />
-      {showNotifications && (
-        <Notifications onClose={() => setShowNotifications(false)} />
-      )}
-      <main className="pt-20">
-        {renderPage()}
-      </main>
-    </div>
+    <AppProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </AppProvider>
   );
 }
 

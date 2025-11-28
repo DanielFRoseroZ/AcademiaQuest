@@ -1,49 +1,76 @@
-import { Trophy, Star, Zap, Target, Award, TrendingUp, Calendar } from 'lucide-react';
+import { Trophy, Star, Zap, Target, Award, TrendingUp, Calendar, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useApp } from '../context/AppContext';
+import { GAMIFICATION_CONFIG } from '../config/gamification';
+import { seedBadges } from '../data/seed';
 import ProgressBar from '../components/ProgressBar';
 
 export default function Profile() {
-  const user = {
-    name: 'Estudiante Ejemplo',
-    level: 12,
-    rank: 'Retador',
-    currentXP: 2450,
-    nextLevelXP: 3000,
-    totalXP: 15420,
-    joinDate: 'Enero 2025',
-    streak: 7,
-    completedMissions: 34,
-    achievements: 12,
-    position: 8,
+  const navigate = useNavigate();
+  const { currentUser, state, logout } = useApp();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
-  const ranks = [
-    { name: 'Explorador', minLevel: 1, color: 'from-gray-500 to-gray-600' },
-    { name: 'Aprendiz Activo', minLevel: 5, color: 'from-green-500 to-emerald-600' },
-    { name: 'Retador', minLevel: 10, color: 'from-blue-500 to-cyan-600' },
-    { name: 'Maestro del Conocimiento', minLevel: 20, color: 'from-purple-500 to-pink-600' },
-  ];
+  if (!currentUser) {
+    return null;
+  }
 
-  const badges = [
-    { id: 1, name: 'Primera Misión', icon: 'star', earned: true, date: 'Ene 15, 2025' },
-    { id: 2, name: 'Racha de 7 días', icon: 'fire', earned: true, date: 'Nov 10, 2025' },
-    { id: 3, name: '10 Misiones', icon: 'target', earned: true, date: 'Nov 12, 2025' },
-    { id: 4, name: 'Colaborador', icon: 'users', earned: true, date: 'Nov 8, 2025' },
-    { id: 5, name: '50 Misiones', icon: 'trophy', earned: false, date: null },
-    { id: 6, name: 'Racha de 30 días', icon: 'zap', earned: false, date: null },
-  ];
+  // Calcular estadísticas
+  const nextLevelXP = GAMIFICATION_CONFIG.levelCalculation.getNextLevelXP(currentUser.level);
+  const currentLevelXP = GAMIFICATION_CONFIG.levelCalculation.getCurrentLevelXP(
+    currentUser.xp,
+    currentUser.level
+  );
+  const rank = GAMIFICATION_CONFIG.getCurrentRank(currentUser.level);
+
+  // Calcular posición en ranking
+  const sortedUsers = [...state.users].sort((a, b) => b.xp - a.xp);
+  const position = sortedUsers.findIndex(u => u.id === currentUser.id) + 1;
+
+  // Misiones completadas por tipo
+  const completedMissions = state.missions.filter(
+    m => m.assignedTo === currentUser.id && m.status === 'completed'
+  );
+  const tasksCompleted = completedMissions.filter(m => m.type === 'task').length;
+  const challengesCompleted = completedMissions.filter(m => m.type === 'challenge').length;
+  const teamMissionsCompleted = completedMissions.filter(m => m.type === 'team').length;
+
+  // Badges del usuario
+  const userBadges = seedBadges.filter(b => currentUser.badges.includes(b.id));
+  const allBadges = seedBadges.map(badge => ({
+    ...badge,
+    earned: currentUser.badges.includes(badge.id),
+  }));
+
+  // Formatear fecha de unión
+  const joinDate = currentUser.joinDate
+    ? new Date(currentUser.joinDate).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+    : 'Reciente';
 
   const stats = [
-    { label: 'Tareas Completadas', value: '28', icon: Target, color: 'blue' },
-    { label: 'Retos Superados', value: '6', icon: Zap, color: 'orange' },
-    { label: 'Proyectos Grupales', value: '4', icon: Award, color: 'green' },
-    { label: 'Racha Actual', value: '7 días', icon: TrendingUp, color: 'purple' },
+    { label: 'Tareas Completadas', value: tasksCompleted.toString(), icon: Target, color: 'blue' },
+    { label: 'Retos Superados', value: challengesCompleted.toString(), icon: Zap, color: 'orange' },
+    { label: 'Proyectos Grupales', value: teamMissionsCompleted.toString(), icon: Award, color: 'green' },
+    { label: 'Racha Actual', value: `${currentUser.streak} días`, icon: TrendingUp, color: 'purple' },
   ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2">Mi Perfil</h1>
-        <p className="text-gray-400">Revisa tu progreso y logros</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-white mb-2">Mi Perfil</h1>
+          <p className="text-gray-400">Revisa tu progreso y logros</p>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="flex items-center space-x-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 rounded-lg transition-colors"
+        >
+          <LogOut className="w-5 h-5" />
+          <span>Cerrar Sesión</span>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -51,34 +78,34 @@ export default function Profile() {
           <div className="flex items-start justify-between mb-6">
             <div className="flex items-center space-x-4">
               <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-xl">
-                {user.name.split(' ').map(n => n[0]).join('')}
+                {currentUser.avatar}
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white mb-1">{user.name}</h2>
-                <p className="text-blue-400 font-semibold text-lg">{user.rank}</p>
+                <h2 className="text-2xl font-bold text-white mb-1">{currentUser.name}</h2>
+                <p className="text-blue-400 font-semibold text-lg">{rank.name}</p>
                 <div className="flex items-center space-x-2 text-gray-400 text-sm mt-1">
                   <Calendar className="w-4 h-4" />
-                  <span>Miembro desde {user.joinDate}</span>
+                  <span>Miembro desde {joinDate}</span>
                 </div>
               </div>
             </div>
             <div className="text-right">
               <p className="text-gray-400 text-sm">Posición Global</p>
               <p className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-400">
-                #{user.position}
+                #{position}
               </p>
             </div>
           </div>
 
           <div className="mb-6">
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-400">Nivel {user.level} - Progreso al Nivel {user.level + 1}</span>
+              <span className="text-gray-400">Nivel {currentUser.level} - Progreso al Nivel {currentUser.level + 1}</span>
               <span className="text-white font-semibold">
-                {user.currentXP} / {user.nextLevelXP} XP
+                {currentLevelXP} / {nextLevelXP} XP
               </span>
             </div>
             <ProgressBar
-              progress={(user.currentXP / user.nextLevelXP) * 100}
+              progress={(currentLevelXP / nextLevelXP) * 100}
               color="blue"
               showGlow={true}
               height="lg"
@@ -114,23 +141,23 @@ export default function Profile() {
             <h3 className="text-xl font-bold text-white">Sistema de Rangos</h3>
           </div>
           <div className="space-y-3">
-            {ranks.map((rank, index) => (
+            {GAMIFICATION_CONFIG.ranks.map((rankItem, index) => (
               <div
                 key={index}
                 className={`p-4 rounded-lg border transition-all ${
-                  user.rank === rank.name
-                    ? 'bg-gradient-to-r ' + rank.color + '/20 border-' + rank.color.split('-')[1] + '-500/50'
+                  rank.name === rankItem.name
+                    ? `bg-gradient-to-r ${rankItem.color}/20 border-${rankItem.color.split('-')[1]}-500/50`
                     : 'bg-slate-700/30 border-slate-600/30'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`font-bold ${user.rank === rank.name ? 'text-white' : 'text-gray-400'}`}>
-                      {rank.name}
+                    <p className={`font-bold ${rank.name === rankItem.name ? 'text-white' : 'text-gray-400'}`}>
+                      {rankItem.name}
                     </p>
-                    <p className="text-gray-500 text-xs">Nivel {rank.minLevel}+</p>
+                    <p className="text-gray-500 text-xs">Nivel {rankItem.minLevel}+</p>
                   </div>
-                  {user.rank === rank.name && (
+                  {rank.name === rankItem.name && (
                     <Star className="w-5 h-5 text-yellow-400" />
                   )}
                 </div>
@@ -145,11 +172,11 @@ export default function Profile() {
           <Award className="w-6 h-6 text-yellow-400" />
           <h2 className="text-2xl font-bold text-white">Insignias y Logros</h2>
           <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-sm font-semibold">
-            {badges.filter(b => b.earned).length} / {badges.length}
+            {userBadges.length} / {allBadges.length}
           </span>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {badges.map((badge) => (
+          {allBadges.map((badge) => (
             <div
               key={badge.id}
               className={`p-4 rounded-xl border text-center transition-all ${
@@ -168,10 +195,10 @@ export default function Profile() {
                 <Award className="w-8 h-8 text-white" />
               </div>
               <p className={`text-sm font-semibold mb-1 ${badge.earned ? 'text-white' : 'text-gray-500'}`}>
-                {badge.name}
+                {badge.title}
               </p>
-              {badge.earned && badge.date && (
-                <p className="text-xs text-gray-400">{badge.date}</p>
+              {badge.earned && (
+                <p className="text-xs text-gray-400">{badge.description}</p>
               )}
             </div>
           ))}
