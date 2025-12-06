@@ -46,7 +46,7 @@ export default function MissionCard({ mission }: MissionCardProps) {
     <>
       <div
         onClick={() => setShowModal(true)}
-        className="bg-slate-800/80 backdrop-blur-sm rounded-xl p-5 border border-slate-700 hover:border-blue-500/50 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 cursor-pointer"
+        className="bg-slate-800/80 dark:bg-slate-800/80 light:bg-white/90 backdrop-blur-sm rounded-xl p-5 border border-slate-700 dark:border-slate-700 light:border-gray-200 hover:border-blue-500/50 dark:hover:border-blue-500/50 light:hover:border-blue-400 transition-all duration-300 ease-out hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/10 light:hover:shadow-blue-200/30 hover:-translate-y-1 cursor-pointer transform"
       >
         <div className="flex items-start justify-between mb-3">
           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${typeColors[mission.type]}`}>
@@ -57,24 +57,24 @@ export default function MissionCard({ mission }: MissionCardProps) {
           </span>
         </div>
 
-        <h3 className="text-white font-bold text-lg mb-3 leading-tight">{mission.title}</h3>
+        <h3 className="text-white dark:text-white light:text-gray-900 font-bold text-lg mb-3 leading-tight">{mission.title}</h3>
 
         <div className="mb-3">
           <div className="flex justify-between text-sm mb-2">
-            <span className="text-gray-400">Progreso</span>
-            <span className="text-white font-semibold">{mission.progress}%</span>
+            <span className="text-gray-400 dark:text-gray-400 light:text-gray-600">Progreso</span>
+            <span className="text-white dark:text-white light:text-gray-900 font-semibold">{mission.progress}%</span>
           </div>
           <ProgressBar progress={mission.progress} color="blue" height="sm" />
         </div>
 
-        <div className="flex items-center justify-between pt-3 border-t border-slate-700">
-          <div className="flex items-center space-x-1 text-gray-400">
+        <div className="flex items-center justify-between pt-3 border-t border-slate-700 dark:border-slate-700 light:border-gray-200">
+          <div className="flex items-center space-x-1 text-gray-400 dark:text-gray-400 light:text-gray-600">
             <Clock className="w-4 h-4" />
             <span className="text-xs">{getTimeRemainingText()}</span>
           </div>
           <div className="flex items-center space-x-1">
-            <Zap className="w-4 h-4 text-yellow-400" />
-            <span className="text-white font-bold text-sm">+{mission.rewardXp} XP</span>
+            <Zap className="w-4 h-4 text-yellow-400 dark:text-yellow-400 light:text-yellow-600" />
+            <span className="text-white dark:text-white light:text-gray-900 font-bold text-sm">+{mission.rewardXp} XP</span>
           </div>
         </div>
       </div>

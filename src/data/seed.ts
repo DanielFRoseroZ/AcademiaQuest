@@ -215,7 +215,7 @@ export const seedMissions: Mission[] = [
     deadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 días
     assignedTo: 'u1',
     status: 'in_progress',
-    description: 'Completa los ejercicios de matrices y determinantes',
+    description: 'Practica con ejercicios de matrices y determinantes. Resuelve al menos 5 problemas de suma, resta y multiplicación de matrices. ¡Domina esta herramienta matemática esencial!',
   },
   {
     id: 'm2',
@@ -227,7 +227,7 @@ export const seedMissions: Mission[] = [
     deadline: new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString(), // 5 horas
     assignedTo: 'u1',
     status: 'in_progress',
-    description: 'Responde correctamente al menos 80% de las preguntas',
+    description: 'Demuestra tus conocimientos históricos respondiendo correctamente al menos 8 de cada 10 preguntas. El quiz cubre desde la Antigüedad hasta la Edad Moderna. ¡Pon a prueba tu memoria histórica!',
   },
   {
     id: 'm3',
@@ -240,7 +240,7 @@ export const seedMissions: Mission[] = [
     assignedTo: null,
     status: 'in_progress',
     teamId: 't1',
-    description: 'Crear presentación colaborativa sobre energía renovable',
+    description: 'Trabaja con tu equipo para crear una presentación sobre energía renovable. Cada miembro debe investigar un tipo de energía (solar, eólica, hidráulica) y crear una diapositiva. ¡La colaboración es clave!',
     contributions: [
       { userId: 'u1', progress: 20 },
       { userId: 'u2', progress: 25 },
@@ -257,7 +257,7 @@ export const seedMissions: Mission[] = [
     deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 días
     assignedTo: 'u1',
     status: 'in_progress',
-    description: 'Completa los primeros 5 ejercicios de Python',
+    description: 'Aprende los fundamentos de Python completando los primeros 5 ejercicios prácticos. Cubrirás variables, tipos de datos, operadores y estructuras básicas. ¡Tu primer paso en programación!',
   },
   // Misiones disponibles
   {
@@ -270,7 +270,7 @@ export const seedMissions: Mission[] = [
     deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     assignedTo: null,
     status: 'available',
-    description: 'Estudia los conceptos fundamentales de física cuántica',
+    description: 'Sumérgete en el fascinante mundo de la física cuántica. Estudia los principios fundamentales: dualidad onda-partícula, principio de incertidumbre y superposición cuántica. Completa un resumen de 500 palabras sobre estos conceptos.',
   },
   {
     id: 'm6',
@@ -282,7 +282,7 @@ export const seedMissions: Mission[] = [
     deadline: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
     assignedTo: null,
     status: 'available',
-    description: 'Escribe un ensayo de 1000 palabras sobre un tema académico',
+    description: 'Desarrolla tus habilidades de escritura académica creando un ensayo de 1000 palabras sobre un tema de tu elección. Debe incluir introducción, desarrollo con argumentos sólidos y conclusión. ¡Demuestra tu capacidad de análisis y expresión escrita!',
   },
   {
     id: 'm7',
@@ -295,7 +295,7 @@ export const seedMissions: Mission[] = [
     assignedTo: null,
     status: 'in_progress',
     teamId: 't1',
-    description: 'Crear presentación colaborativa sobre energía renovable',
+    description: 'Colabora con tu equipo para investigar y presentar un proyecto de física aplicada. Cada miembro debe explicar un fenómeno físico diferente (movimiento, energía, ondas) con ejemplos prácticos de la vida cotidiana. ¡Aprendan juntos!',
     contributions: [
       { userId: 'u1', progress: 20 },
       { userId: 'u2', progress: 25 },
@@ -313,7 +313,7 @@ export const seedMissions: Mission[] = [
     assignedTo: null,
     status: 'in_progress',
     teamId: 't1',
-    description: 'Documento compartido sobre la Revolución Industrial',
+    description: 'Investiga junto a tu equipo sobre la Revolución Industrial. Cada miembro debe investigar un aspecto diferente: causas, inventos importantes, impacto social o consecuencias. Creen un documento colaborativo con todas las secciones.',
     contributions: [
       { userId: 'u2', progress: 25 },
       { userId: 'u4', progress: 15 },
@@ -335,7 +335,7 @@ export const seedChallenges: Challenge[] = [
   {
     id: 'c2',
     title: 'Velocidad Mental',
-    description: 'Completa 10 ejercicios rápidos en menos de 5 minutos',
+    description: 'Pon a prueba tu agilidad mental completando 10 ejercicios rápidos de matemáticas, lógica y memoria en menos de 5 minutos. Ideal para entrenar tu cerebro entre clases. ¡Cada segundo cuenta!',
     difficulty: 'intermedio',
     rewardXp: 300,
     durationHours: 24,
